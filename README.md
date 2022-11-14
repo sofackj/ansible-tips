@@ -1,7 +1,9 @@
 # Few Tips with Ansible
 
-## Pipes combos
-### Ternary Combo
+### Pipes combos
+
+#### Ternary Combo
+
 ```sh
 # shwo container with restaarting mode
 - name: '[check_install.yml] : Verify if containers is up {{ docker_container_name }}'
@@ -13,14 +15,19 @@
   debug:
     msg: "Deploiement du container {{ docker_container_name }} est {{ (container_info.exists and container_info.container.State.Running) | ternary('OK', 'KO') }}"
 ```
+
 ### Selestattr vs Map
+
 #### Selectattr
-````sh
+
+```sh
 - name: 'Setting fact mount'
   set_fact:
     mount: "{{ ansible_mounts | selectattr('mount')|list}}"
 ```
+
 #### Map
+
 ```sh
 - name: 'Get all availables partitions in application server'
   set_fact:
@@ -32,7 +39,11 @@
   set_fact:
     full_size: "{{ mount | map(attribute='size_total')| list }}"
 ```
+
 ### Use of with_together
+
+#### Two lists
+
 ```sh
 - name: item.0 returns from the 'a' list, item.1 returns from the '1' list
   ansible.builtin.debug:
@@ -41,7 +52,9 @@
     - ['a', 'b', 'c', 'd']
     - [1, 2, 3, 4]
 ```
-Or a bit more complex
+
+#### Three lists combined with condition
+
 ```sh
 - name: 'Ensures that the available size is greater than 30% of the total size'
   assert:
@@ -56,6 +69,7 @@ Or a bit more complex
 
 ### Ansible and Perfomance
 Check this [link]([https://docs.ansible.com/ansible/latest/collections/ansible/builtin/assert_module.html](https://devopssec.fr/article/accelerer-performances-playbook))
+
 ```sh
 - hosts: web
   gather_facts: False
@@ -63,7 +77,9 @@ Check this [link]([https://docs.ansible.com/ansible/latest/collections/ansible/b
     - network
     - virtual
 ```
+
 ### Debug or Fail module : Way to present the msg
+
 ```sh
 - name: Print some debug information 
     vars: 
@@ -73,7 +89,9 @@ Check this [link]([https://docs.ansible.com/ansible/latest/collections/ansible/b
           msg 3
           ...
 ```
+
 ### Check the value of a variable
+
 ```sh
 # Verify is variables are defined
 - name: '[check_variables.yml] : Check all required vars'
@@ -83,8 +101,9 @@ Check this [link]([https://docs.ansible.com/ansible/latest/collections/ansible/b
   loop: "{{ docker_required_vars | default([]) }}"
 ```
 
-## Assert module
+### Assert module
 Check the documentation [here](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/assert_module.html)
+
 ```sh
 - name: After version 2.7 both 'msg' and 'fail_msg' can customize failing assertion message
   ansible.builtin.assert:

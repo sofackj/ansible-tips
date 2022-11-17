@@ -16,9 +16,13 @@
     msg: "Deploiement du container {{ docker_container_name }} est {{ (container_info.exists and container_info.container.State.Running) | ternary('OK', 'KO') }}"
 ```
 
+## Attributes
+
 ### Selestattr vs Map
 
-#### Selectattr
+#### Selectattr -> ansible_facts
+
+Take the all the object where the attribute is located
 
 ```sh
 - name: 'Setting fact mount'
@@ -28,16 +32,25 @@
 
 #### Map
 
+Take only the attribute and his value.
+
 ```sh
-- name: 'Get all availables partitions in application server'
-  set_fact:
-    all_partition: "{{ mount | map(attribute='mount') | list }}"
-- name: 'Get all avalaibles size in host application server'
-  set_fact:
-    size_available: "{{ mount | map(attribute='size_available') | list }}"
-- name: 'Set to full size in application server'
-  set_fact:
-    full_size: "{{ mount | map(attribute='size_total')| list }}"
+---
+- hosts: node1
+  tasks:
+  - name: ansible_mount
+    set_fact:
+      mount_name: "{{ ansible_mounts | map(attribute='mount') | list }}"
+      size_available: "{{ ansible_mounts | map(attribute='size_available') | list}}"
+      full_size: "{{ ansible_mounts | map(attribute='size_total') | list }}"
+  - name: check vars
+    debug:
+      msg: |
+        {% if item.0 == '/' %}root{% else %}{{ item.0 }}{% endif %} - {{ item.1 }} - {{ item.2 }}
+    with_together:
+    - "{{ mount_name }}"
+    - "{{ size_available }}"
+    - "{{ full_size }}"
 ```
 
 ## Loops tips & tricks

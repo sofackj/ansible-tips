@@ -23,7 +23,7 @@
 ```sh
 - name: 'Setting fact mount'
   set_fact:
-    mount: "{{ ansible_mounts | selectattr('mount')|list}}"
+    mount: "{{ ansible_mounts | selectattr('mount')|list }}"
 ```
 
 #### Map
@@ -38,6 +38,43 @@
 - name: 'Set to full size in application server'
   set_fact:
     full_size: "{{ mount | map(attribute='size_total')| list }}"
+```
+
+## Loops tips & tricks
+
+### Mix external and internal loops -> [example](https://github.com/sofackj/mini-projects#ansible-project-i--may-be-used-for-docker-containers-ansible_and_vars)
+
+- **Structure as below**
+
+```sh
+roles/
+└── deploy_app
+    └── tasks
+        ├── deploy.yml
+        └── main.yml
+```
+
+- **Files content**
+
+**```main.yml```**
+
+```sh
+- include_tasks: deploy.yml
+  # In deploy.yml {{ item }} will be used as variable
+  with_items: "{{ ext_list }}"
+```
+
+**```deploy.yml```**
+
+```sh
+- name: what is nicu
+  debug:
+    # {{ item }} represents an element of ext_list
+    # {{ local_item }} represents an element of int_list via the use of the loop_control module
+    msg: "My ID is {{ item }} for {{ local_item }}"
+  loop: "{{ int_list }}"
+  loop_control:
+    loop_var: local_item
 ```
 
 ### Use of with_together
@@ -83,10 +120,10 @@ Check this [link]([https://docs.ansible.com/ansible/latest/collections/ansible/b
 ```sh
 - name: Print some debug information 
     vars: 
-      msg: |
-          msg 1
-          msg 2
-          msg 3
+      msg:
+      - msg 1
+      - msg 2
+      - msg 3
           ...
 ```
 
